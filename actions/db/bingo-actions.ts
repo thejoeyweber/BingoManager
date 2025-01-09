@@ -25,8 +25,19 @@ export async function createBingoGameAction(
   }
 ): Promise<ActionState<SelectBingoGame>> {
   try {
-    // Example free plan check (placeholder):
-    // TODO: Actually check if user already has a game if membership is free, etc.
+    // Check membership and ensure free users can only create 1 active game
+    const profileRes = await getProfileByUserIdAction(userId)
+    if (profileRes.isSuccess && profileRes.data?.membership === "free") {
+      const existingGames = await db.query.bingoGamesTable.findMany({
+        where: eq(bingoGamesTable.userId, userId)
+      })
+      if (existingGames.length >= 1) {
+        return {
+          isSuccess: false,
+          message: "Free plan limited to 1 game."
+        }
+      }
+    }
 
     const [newGame] = await db
       .insert(bingoGamesTable)
