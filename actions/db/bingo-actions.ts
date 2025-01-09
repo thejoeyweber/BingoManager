@@ -246,10 +246,8 @@ export async function generateBingoCardsAction(
       // If we want to do a random arrangement within the grid
       finalItems = shuffle(finalItems)
 
-      // If config?.includeFreeSpace in a 5x5, replace center with a special "free" placeholder
-      // This is optional logic if you want a "free space"
+      // If config?.includeFreeSpace and 5x5, replace center with a special "FREE SPACE"
       if (config?.includeFreeSpace && size === 25) {
-        // center index in 5x5 is 12
         finalItems[12] = {
           ...finalItems[12],
           label: "FREE SPACE",
@@ -302,5 +300,24 @@ export async function deleteBingoGameAction(
   } catch (error) {
     console.error("Error deleting Bingo game:", error)
     return { isSuccess: false, message: "Failed to delete Bingo game" }
+  }
+}
+
+// READ bingo cards for a Bingo game
+export async function getBingoCardsAction(
+  gameId: string
+): Promise<ActionState<SelectBingoCard[]>> {
+  try {
+    const cards = await db.query.bingoCardsTable.findMany({
+      where: eq(bingoCardsTable.gameId, gameId)
+    })
+    return {
+      isSuccess: true,
+      message: "Bingo cards retrieved successfully",
+      data: cards
+    }
+  } catch (error) {
+    console.error("Error retrieving Bingo cards:", error)
+    return { isSuccess: false, message: "Failed to retrieve Bingo cards" }
   }
 }
