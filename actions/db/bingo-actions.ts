@@ -14,6 +14,7 @@ import {
   SelectBingoCard
 } from "@/db/schema/bingo-schema"
 import { ActionState } from "@/types"
+import { getProfileByUserIdAction } from "./profiles-actions"
 
 // CREATE a new Bingo game
 export async function createBingoGameAction(
@@ -148,29 +149,132 @@ export async function deleteBingoItemAction(
   }
 }
 
-// GENERATE Bingo cards (skeleton)
+/**
+ * GENERATE Bingo cards
+ * - Checks user membership to limit total cards to 50 on free plan.
+ * - Fetches mandatory items + optional items.
+ * - Randomly shuffles optional items for each card.
+ * - Places mandatory items in the grid (for a 5x5 standard, we fill first).
+ * - Saves final item layout in bingo_cards.card_data as JSON.
+ */
 export async function generateBingoCardsAction(
   gameId: string,
   quantity: number,
-  config?: any
+  config?: {
+    includeFreeSpace?: boolean
+  }
 ): Promise<ActionState<SelectBingoCard[]>> {
   try {
-    // Example free plan check (placeholder)
-    // TODO: limit cards if user is free membership, randomize, etc.
+    // 1) Check membership status
+    // We want to find the userId from the game
+    const game = await db.query.bingoGamesTable.findFirst({
+      where: eq(bingoGamesTable.id, gameId)
+    })
+    if (!game) {
+      return { isSuccess: false, message: "Game not found" }
+    }
 
-    // This is just a skeleton to illustrate:
+    // Get user profile
+    const userProfile = await getProfileByUserIdAction(game.userId)
+    if (!userProfile.isSuccess || !userProfile.data) {
+      return { isSuccess: false, message: "Could not load user profile" }
+    }
+
+    const isFree = userProfile.data.membership === "free"
+
+    // 2) Check how many cards already exist
+    const existingCardsCount = await db.query.bingoCardsTable.findMany({
+      where: eq(bingoCardsTable.gameId, gameId),
+      columns: {
+        id: true
+      }
+    })
+
+    const totalExisting = existingCardsCount.length
+    const newTotal = totalExisting + quantity
+    // For free plan, limit 50 total
+    if (isFree && newTotal > 50) {
+      return {
+        isSuccess: false,
+        message: "Free plan allows max 50 cards total. Limit exceeded."
+      }
+    }
+
+    // 3) Fetch mandatory and optional items
+    const allItems = await db.query.bingoItemsTable.findMany({
+      where: eq(bingoItemsTable.gameId, gameId)
+    })
+    if (!allItems || allItems.length === 0) {
+      return {
+        isSuccess: false,
+        message: "No items found. Add items before generating cards."
+      }
+    }
+
+    const mandatory = allItems.filter(i => i.isMandatory)
+    const optional = allItems.filter(i => !i.isMandatory)
+
+    // Shuffle helper
+    function shuffle<T>(arr: T[]): T[] {
+      const result = [...arr]
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[result[i], result[j]] = [result[j], result[i]]
+      }
+      return result
+    }
+
+    // We'll assume a 5x5 if the variant is "5x5 Standard"
+    // You can adjust or detect other variants as needed
+    const size = game.variant.includes("5x5") ? 25 : 25
+    // If config?.includeFreeSpace, we can handle that logic here
+    // For simplicity, we'll just place mandatory items first and then fill the rest.
+
     const newCards: InsertBingoCard[] = []
+
     for (let i = 0; i < quantity; i++) {
+      let finalItems = [...mandatory] // place mandatory items first
+      // We only shuffle optional for each card
+      const shuffledOptional = shuffle(optional)
+
+      // Fill up to `size` total items
+      const needed = size - finalItems.length
+      if (needed > 0) {
+        finalItems = finalItems.concat(shuffledOptional.slice(0, needed))
+      }
+
+      // If we want to do a random arrangement within the grid
+      finalItems = shuffle(finalItems)
+
+      // If config?.includeFreeSpace in a 5x5, replace center with a special "free" placeholder
+      // This is optional logic if you want a "free space"
+      if (config?.includeFreeSpace && size === 25) {
+        // center index in 5x5 is 12
+        finalItems[12] = {
+          ...finalItems[12],
+          label: "FREE SPACE",
+          isMandatory: false,
+          id: "free-space"
+        }
+      }
+
+      const cardData = {
+        items: finalItems.map(item => ({
+          id: item.id,
+          label: item.label,
+          imageUrl: item.imageUrl,
+          isMandatory: item.isMandatory
+        }))
+      }
+
       newCards.push({
         gameId,
-        cardData: JSON.stringify({ items: [] }) // placeholder
+        cardData: JSON.stringify(cardData)
       })
     }
 
-    const inserted = await db
-      .insert(bingoCardsTable)
-      .values(newCards)
-      .returning()
+    // 4) Insert new cards
+    const inserted = await db.insert(bingoCardsTable).values(newCards).returning()
 
     return {
       isSuccess: true,
