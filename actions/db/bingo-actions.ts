@@ -51,7 +51,10 @@ export async function getBingoGamesAction(
   userId: string
 ): Promise<ActionState<SelectBingoGame[]>> {
   try {
-    const games = await db.select().from(bingoGamesTable).where(eq(bingoGamesTable.userId, userId))
+    const games = await db
+      .select()
+      .from(bingoGamesTable)
+      .where(eq(bingoGamesTable.userId, userId))
     return {
       isSuccess: true,
       message: "Bingo games retrieved successfully",
@@ -63,7 +66,7 @@ export async function getBingoGamesAction(
   }
 }
 
-// CREATE items for a Bingo game
+// CREATE items for a Bingo game (with free plan limit of 75)
 export async function createBingoItemsAction(
   gameId: string,
   items: {
@@ -73,8 +76,19 @@ export async function createBingoItemsAction(
   }[]
 ): Promise<ActionState<SelectBingoItem[]>> {
   try {
-    // Example free plan check (placeholder):
-    // TODO: limit items if user is free membership.
+    // Check existing item count for limit enforcement:
+    const existingItems = await db.query.bingoItemsTable.findMany({
+      where: eq(bingoItemsTable.gameId, gameId),
+      columns: {
+        id: true
+      }
+    })
+    if (existingItems.length + items.length > 75) {
+      return {
+        isSuccess: false,
+        message: "Item limit reached (75 items max on free plan)"
+      }
+    }
 
     const insertData = items.map(item => ({
       gameId,
@@ -83,7 +97,10 @@ export async function createBingoItemsAction(
       isMandatory: item.isMandatory ?? false
     }))
 
-    const createdItems = await db.insert(bingoItemsTable).values(insertData).returning()
+    const createdItems = await db
+      .insert(bingoItemsTable)
+      .values(insertData)
+      .returning()
     return {
       isSuccess: true,
       message: "Bingo items created successfully",
@@ -92,6 +109,42 @@ export async function createBingoItemsAction(
   } catch (error) {
     console.error("Error creating Bingo items:", error)
     return { isSuccess: false, message: "Failed to create Bingo items" }
+  }
+}
+
+// READ items for a Bingo game
+export async function getBingoItemsAction(
+  gameId: string
+): Promise<ActionState<SelectBingoItem[]>> {
+  try {
+    const items = await db.query.bingoItemsTable.findMany({
+      where: eq(bingoItemsTable.gameId, gameId)
+    })
+    return {
+      isSuccess: true,
+      message: "Bingo items retrieved successfully",
+      data: items
+    }
+  } catch (error) {
+    console.error("Error retrieving Bingo items:", error)
+    return { isSuccess: false, message: "Failed to retrieve Bingo items" }
+  }
+}
+
+// DELETE a single Bingo item
+export async function deleteBingoItemAction(
+  itemId: string
+): Promise<ActionState<void>> {
+  try {
+    await db.delete(bingoItemsTable).where(eq(bingoItemsTable.id, itemId))
+    return {
+      isSuccess: true,
+      message: "Bingo item deleted successfully",
+      data: undefined
+    }
+  } catch (error) {
+    console.error("Error deleting Bingo item:", error)
+    return { isSuccess: false, message: "Failed to delete Bingo item" }
   }
 }
 
@@ -114,7 +167,10 @@ export async function generateBingoCardsAction(
       })
     }
 
-    const inserted = await db.insert(bingoCardsTable).values(newCards).returning()
+    const inserted = await db
+      .insert(bingoCardsTable)
+      .values(newCards)
+      .returning()
 
     return {
       isSuccess: true,
