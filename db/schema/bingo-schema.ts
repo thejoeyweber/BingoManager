@@ -1,6 +1,4 @@
 import { pgTable, uuid, text, timestamp, boolean } from "drizzle-orm/pg-core"
-import { profilesTable } from "@/db/schema/profiles-schema"
-import { references } from "drizzle-orm"
 
 // bingo_games table
 export const bingoGamesTable = pgTable("bingo_games", {

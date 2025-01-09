@@ -15,8 +15,6 @@ import {
 } from "@/db/schema/bingo-schema"
 import { ActionState } from "@/types"
 
-// TODO: Potentially check user membership (free vs pro) before creating games.
-
 // CREATE a new Bingo game
 export async function createBingoGameAction(
   userId: string,
