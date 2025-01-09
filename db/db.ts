@@ -5,6 +5,7 @@ Initializes the database connection and schema for the app.
 */
 
 import { profilesTable, todosTable } from "@/db/schema"
+import { bingoGamesTable, bingoItemsTable, bingoCardsTable } from "@/db/schema/bingo-schema"
 import { config } from "dotenv"
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
@@ -13,7 +14,10 @@ config({ path: ".env.local" })
 
 const schema = {
   profiles: profilesTable,
-  todos: todosTable
+  todos: todosTable,
+  bingoGames: bingoGamesTable,
+  bingoItems: bingoItemsTable,
+  bingoCards: bingoCardsTable
 }
 
 const client = postgres(process.env.DATABASE_URL!)
