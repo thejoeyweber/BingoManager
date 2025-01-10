@@ -59,28 +59,26 @@ export default function CallerClient({ items }: CallerClientProps) {
     <div className="space-y-4">
       <button
         onClick={handleCallNext}
-        className="bg-primary text-primary-foreground px-4 py-2 rounded-md"
+        className="bg-primary text-primary-foreground rounded-md px-4 py-2"
       >
         Call Next
       </button>
 
       <div>
-        <h2 className="font-semibold mb-2">Called Items</h2>
+        <h2 className="mb-2 font-semibold">Called Items</h2>
         {calledItems.length === 0 ? (
           <p>No items called yet.</p>
         ) : (
           <ol className="list-inside list-decimal space-y-1">
             {calledItems.map((item, index) => (
-              <li key={index}>
-                {item.label}
-              </li>
+              <li key={index}>{item.label}</li>
             ))}
           </ol>
         )}
       </div>
 
       <div>
-        <h2 className="font-semibold mb-2">Remaining Items</h2>
+        <h2 className="mb-2 font-semibold">Remaining Items</h2>
         <p>{uncalledItems.length} items remain.</p>
       </div>
     </div>

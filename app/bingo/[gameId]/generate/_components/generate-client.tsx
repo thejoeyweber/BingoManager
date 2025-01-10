@@ -50,13 +50,11 @@ export default function GenerateClient({ gameId }: GenerateClientProps) {
   return (
     <div className="space-y-4">
       <div>
-        <label className="font-medium text-sm">
-          How many cards?
-        </label>
+        <label className="text-sm font-medium">How many cards?</label>
         <Input
           type="number"
           min={1}
-          max={100} 
+          max={100}
           value={quantity}
           onChange={e => setQuantity(Number(e.target.value))}
           className="mt-1 w-32"

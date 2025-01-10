@@ -30,7 +30,7 @@ export default async function BingoPrintPage({ params }: BingoPrintPageProps) {
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Print Bingo Cards</h1>
+      <h1 className="mb-4 text-xl font-bold">Print Bingo Cards</h1>
       <div className="flex flex-col gap-8">
         {cards.map((card, index) => {
           const cardData = JSON.parse(card.cardData) as {
@@ -43,8 +43,11 @@ export default async function BingoPrintPage({ params }: BingoPrintPageProps) {
           }
 
           return (
-            <div key={card.id} className="border p-4 rounded-md break-inside-avoid">
-              <h2 className="font-semibold mb-2">Card {index + 1}</h2>
+            <div
+              key={card.id}
+              className="break-inside-avoid rounded-md border p-4"
+            >
+              <h2 className="mb-2 font-semibold">Card {index + 1}</h2>
               <div className="grid grid-cols-5 gap-2">
                 {cardData.items.map((item, iIdx) => (
                   <div

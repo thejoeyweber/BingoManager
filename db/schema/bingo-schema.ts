@@ -3,8 +3,7 @@ import { pgTable, uuid, text, timestamp, boolean } from "drizzle-orm/pg-core"
 // bingo_games table
 export const bingoGamesTable = pgTable("bingo_games", {
   id: uuid("id").defaultRandom().primaryKey(),
-  userId: text("user_id")
-    .notNull(),
+  userId: text("user_id").notNull(),
   title: text("title").notNull(),
   variant: text("variant").notNull(),
 

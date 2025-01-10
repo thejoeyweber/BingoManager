@@ -12,7 +12,9 @@ interface BingoCallerPageProps {
   }
 }
 
-export default async function BingoCallerPage({ params }: BingoCallerPageProps) {
+export default async function BingoCallerPage({
+  params
+}: BingoCallerPageProps) {
   const { userId } = auth()
   if (!userId) {
     redirect("/login")
@@ -33,7 +35,7 @@ export default async function BingoCallerPage({ params }: BingoCallerPageProps) 
   // Render client component for the caller screen
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Caller Screen</h1>
+      <h1 className="mb-4 text-xl font-bold">Caller Screen</h1>
       <CallerClient items={itemsRes.data || []} />
     </div>
   )

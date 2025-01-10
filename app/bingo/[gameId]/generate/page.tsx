@@ -12,7 +12,9 @@ interface BingoGeneratePageProps {
   }
 }
 
-export default async function BingoGeneratePage({ params }: BingoGeneratePageProps) {
+export default async function BingoGeneratePage({
+  params
+}: BingoGeneratePageProps) {
   const { userId } = auth()
   if (!userId) {
     redirect("/login")
@@ -38,7 +40,7 @@ export default async function BingoGeneratePage({ params }: BingoGeneratePagePro
   // Render client component
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Generate Cards</h1>
+      <h1 className="mb-4 text-xl font-bold">Generate Cards</h1>
       <GenerateClient gameId={params.gameId} />
     </div>
   )

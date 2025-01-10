@@ -5,7 +5,11 @@ Initializes the database connection and schema for the app.
 */
 
 import { profilesTable, todosTable } from "@/db/schema"
-import { bingoGamesTable, bingoItemsTable, bingoCardsTable } from "@/db/schema/bingo-schema"
+import {
+  bingoGamesTable,
+  bingoItemsTable,
+  bingoCardsTable
+} from "@/db/schema/bingo-schema"
 import { config } from "dotenv"
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"

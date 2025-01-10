@@ -12,7 +12,9 @@ interface BingoSettingsPageProps {
   }
 }
 
-export default async function BingoSettingsPage({ params }: BingoSettingsPageProps) {
+export default async function BingoSettingsPage({
+  params
+}: BingoSettingsPageProps) {
   const { userId } = auth()
 
   if (!userId) {
@@ -33,9 +35,6 @@ export default async function BingoSettingsPage({ params }: BingoSettingsPagePro
 
   // Render client component
   return (
-    <SettingsClient
-      gameId={params.gameId}
-      initialItems={itemsRes.data || []}
-    />
+    <SettingsClient gameId={params.gameId} initialItems={itemsRes.data || []} />
   )
 }
