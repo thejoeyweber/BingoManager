@@ -1,9 +1,3 @@
-/*
-<ai_context>
-This client component provides the header for the app.
-</ai_context>
-*/
-
 "use client"
 
 import { Button } from "@/components/ui/button"
@@ -19,14 +13,6 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { ThemeSwitcher } from "./utilities/theme-switcher"
 
-const navLinks = [
-  { href: "/about", label: "About" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/contact", label: "Contact" }
-]
-
-const signedInLinks = [{ href: "/todo", label: "Todo" }]
-
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
@@ -39,7 +25,6 @@ export default function Header() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0)
     }
-
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
@@ -56,32 +41,19 @@ export default function Header() {
         <div className="flex items-center space-x-2 hover:cursor-pointer hover:opacity-80">
           <Rocket className="size-6" />
           <Link href="/" className="text-xl font-bold">
-            Mckay's App Template
+            Bingo Manager
           </Link>
         </div>
 
+        {/* No more marketing nav links, only Bingo Manager stuff */}
         <nav className="absolute left-1/2 hidden -translate-x-1/2 space-x-2 font-semibold md:flex">
-          {navLinks.map(link => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="rounded-full px-3 py-1 hover:opacity-80"
-            >
-              {link.label}
-            </Link>
-          ))}
-
-          <SignedIn>
-            {signedInLinks.map(link => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="rounded-full px-3 py-1 hover:opacity-80"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </SignedIn>
+          {/* Potentially, if you need a direct link to /bingo, you could add it here */}
+          <Link
+            href="/bingo"
+            className="rounded-full px-3 py-1 hover:opacity-80"
+          >
+            Dashboard
+          </Link>
         </nav>
 
         <div className="flex items-center space-x-4">
@@ -91,7 +63,6 @@ export default function Header() {
             <SignInButton>
               <Button variant="outline">Login</Button>
             </SignInButton>
-
             <SignUpButton>
               <Button className="bg-blue-500 hover:bg-blue-600">Sign Up</Button>
             </SignUpButton>
@@ -130,30 +101,16 @@ export default function Header() {
                 Home
               </Link>
             </li>
-            {navLinks.map(link => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className="block hover:underline"
-                  onClick={toggleMenu}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-            <SignedIn>
-              {signedInLinks.map(link => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="block hover:underline"
-                    onClick={toggleMenu}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </SignedIn>
+            {/* Single Bingo link for mobile */}
+            <li>
+              <Link
+                href="/bingo"
+                className="block hover:underline"
+                onClick={toggleMenu}
+              >
+                Dashboard
+              </Link>
+            </li>
           </ul>
         </nav>
       )}
